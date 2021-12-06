@@ -1,94 +1,67 @@
 #pragma once
 
 /*==============================================================================
-Kbd gadget thread.
+Program command line executive.
 ==============================================================================*/
 
 //******************************************************************************
 //******************************************************************************
 //******************************************************************************
-#include "risThreadsThreads.h"
+
+#include "risCmdLineExec.h"
 
 //******************************************************************************
 //******************************************************************************
 //******************************************************************************
-// This is a thread that processes the gadget inputs from the host.
-// It owns the gadget file descriptor. It reads the gadget inputs from
-// the host and writes them to the hidraw via the hidraw file descriptor
-// that is owned by the hidraw thread.
+// This class is the program command line executive. It processes user
+// command line inputs and executes them. It inherits from the command line
+// command executive base class, which provides an interface for executing
+// command line commands. It provides an override execute function that is
+// called by a console executive when it receives a console command line input.
+// The execute function then executes the command.
 
-class GadgetThread : public Ris::Threads::BaseThread
+class CmdLineExec : public Ris::BaseCmdLineExec
 {
 public:
-   typedef Ris::Threads::BaseThread BaseClass;
-
-   //***************************************************************************
-   //***************************************************************************
-   //***************************************************************************
-   // Constants.
-
-   // Device path for gadget.
-   const char* cGadgetDev = "/dev/hidg0";
 
    //***************************************************************************
    //***************************************************************************
    //***************************************************************************
    // Members.
 
-   // File descriptor for gadget.
-   int mGadgetFd;
+   //***************************************************************************
+   //***************************************************************************
+   //***************************************************************************
+   // Methods.
 
-   // File descriptor for event semaphore used for close.
-   int mEventFd;
-
-   // Status.
-   int mErrorCount;
-   int mReportCount;
+   CmdLineExec();
+   void reset();
 
    //***************************************************************************
    //***************************************************************************
    //***************************************************************************
    // Methods.
 
-   // Constructor.
-   GadgetThread();
+   // Base class override. Execute a command line command. It calls one of
+   // the following specific command execution functions. This is called by
+   // the owner of this object to pass command line commands to it. 
+   void execute(Ris::CmdLineCmd* aCmd) override;
 
    //***************************************************************************
    //***************************************************************************
    //***************************************************************************
-   // Methods. Base class overloads.
+   // Methods.
 
-   // Thread init function. This is called by the base class immediately
-   // after the thread starts running. It initializes something.
-   void threadInitFunction() override;
-
-   // Thread run function. This is called by the base class immediately
-   // after the thread init function. It runs a loop that waits for the
-   // hid keyboard input.
-   void threadRunFunction() override;
-
-   // Thread exit function. This is called by the base class immediately
-   // before the thread is terminated. It is a placeholder.
-   void threadExitFunction() override;
-
-   // Thread shutdown function. This posts to the close event to
-   // terminate the thread and it closes the files.
-   void shutdownThread() override;
+   // Execute specific commands.
+   void executeGo1     (Ris::CmdLineCmd* aCmd);
+   void executeGo2     (Ris::CmdLineCmd* aCmd);
+   void executeGo3     (Ris::CmdLineCmd* aCmd);
+   void executeGo4     (Ris::CmdLineCmd* aCmd);
+   void executeGo5     (Ris::CmdLineCmd* aCmd);
+   void executeParms   (Ris::CmdLineCmd* aCmd);
 };
 
 //******************************************************************************
 //******************************************************************************
 //******************************************************************************
-// Global instance.
-
-#ifdef _GADGETTHREAD_CPP_
-           GadgetThread* gGadgetThread = 0;
-#else
-   extern  GadgetThread* gGadgetThread;
-#endif
-
-//******************************************************************************
-//******************************************************************************
-//******************************************************************************
-
 

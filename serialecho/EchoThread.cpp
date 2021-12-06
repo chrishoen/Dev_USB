@@ -20,30 +20,30 @@
 #include <poll.h>
 #include <errno.h>
 
-#include "HidrawThread.h"
-
-#define  _GADGETTHREAD_CPP_
-#include "GadgetThread.h"
+#define  _ECHOTHREAD_CPP_
+#include "EchoThread.h"
 
 //******************************************************************************
 //******************************************************************************
 //******************************************************************************
 // Constructor.
 
-GadgetThread::GadgetThread()
+EchoThread::EchoThread()
 {
    // Set base class thread services.
-   BaseClass::setThreadName("Gadget");
+   BaseClass::setThreadName("Echo");
    BaseClass::setThreadPriorityHigh();
 
    // Set base class thread priority.
    BaseClass::setThreadPriorityHigh();
 
    // Initialize variables.
-   mGadgetFd = -1;
+   mPortFd = -1;
    mEventFd = -1;
+   mRequest[0] = 0;
    mErrorCount = 0;
-   mReportCount = 0;
+   mRestartCount = 0;
+   mRequestCount = 0;
 }
 
 //******************************************************************************
@@ -52,18 +52,11 @@ GadgetThread::GadgetThread()
 // Thread init function. This is called by the base class immediately
 // after the thread starts running. It initializes something.
 
-void GadgetThread::threadInitFunction()
+void EchoThread::threadInitFunction()
 {
-   printf("GadgetThread::threadInitFunction\n");
+   printf("EchoThread::threadInitFunction\n");
 
-   // Open the file.
-   mGadgetFd = open(cGadgetDev, O_RDWR, S_IRUSR | S_IWUSR);
-   if (mGadgetFd < 0)
-   {
-      perror("ERROR Gadget open");
-   }
-
-   // Open the shutdown event.
+   // Open the event.
    mEventFd = eventfd(0, EFD_SEMAPHORE);
 }
 
@@ -74,15 +67,43 @@ void GadgetThread::threadInitFunction()
 // after the thread init function. It runs a loop that waits for the
 // hid keyboard input.
 
-void GadgetThread::threadRunFunction()
+void EchoThread::threadRunFunction()
 {
+restart:
+   // Guard.
+   if (mTerminateFlag) return;
+   Prn::print(Prn::View11, "Echo restart %d", mRestartCount++);
+
+   // Sleep.
+   BaseClass::threadSleep(250);
+
+   // If the hidraw file is open then close it.
+   if (mPortFd > 0)
+   {
+      close(mPortFd);
+      mPortFd = -1;
+   }
+
    //***************************************************************************
    //***************************************************************************
    //***************************************************************************
    // Local variables.
 
    int tRet = 0;
-   char tBuffer[256];
+
+   //***************************************************************************
+   //***************************************************************************
+   //***************************************************************************
+   // Open hidraw file.
+
+   Prn::print(Prn::View11, "Echo open");
+   mPortFd = open(cPortDev, O_RDWR, S_IRUSR | S_IWUSR);
+
+   if (mPortFd < 0)
+   {
+      Prn::print(Prn::View11, "Echo open FAIL");
+      goto restart;
+   }
 
    //***************************************************************************
    //***************************************************************************
@@ -91,7 +112,7 @@ void GadgetThread::threadRunFunction()
 
    while (!BaseClass::mTerminateFlag)
    {
-      printf("Gadget read report********************************************* %d\n", mReportCount++);
+      Prn::print(Prn::View11, "Echo read request********************************************** %d\n", mRequestCount++);
 
       //************************************************************************
       //************************************************************************
@@ -100,7 +121,7 @@ void GadgetThread::threadRunFunction()
 
       // Blocking poll for read or close.
       struct pollfd tPollFd[2];
-      tPollFd[0].fd = mGadgetFd;
+      tPollFd[0].fd = mPortFd;
       tPollFd[0].events = POLLIN;
       tPollFd[0].revents = 0;
       tPollFd[1].fd = mEventFd;
@@ -110,46 +131,25 @@ void GadgetThread::threadRunFunction()
       tRet = poll(&tPollFd[0], 2, -1);
       if (tRet < 0)
       {
-         perror("ERROR Gadget poll");
-         return;
+         Prn::print(Prn::View11, "Echo poll FAIL");
+         goto restart;
       }
 
       // Test for close.
       if (tPollFd[1].revents & POLLIN)
       {
-         printf("gadget read report closed\n");
-         return;
+         Prn::print(Prn::View11, "Echo read abort\n");
+         goto restart;
       }
 
-      // Not closed, read a report record.
-      memset(tBuffer, 0x0, 32);
-      tRet = read(mGadgetFd, tBuffer, 32);
+      // Not closed, read a report record. 
+      tRet = read(mPortFd, mRequest, 32);
       if (tRet < 0)
       {
-         perror("ERROR Gadget read");
-         return;
+         Prn::print(Prn::View11, "ERROR Echo read");
+         goto restart;
       }
-
-      int tReportSize = tRet;
-      printf("Gadget >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> ");
-      for (int i = 0; i < tRet; i++) printf("%hhx ", tBuffer[i]);
-      printf("\n");
-
-      //************************************************************************
-      //************************************************************************
-      //************************************************************************
-      // Write report.
-
-      // Copy the gadget file descriptor.
-      if (gHidrawThread == 0) continue;
-      int tHidrawFd = gHidrawThread->mHidrawFd;
-      if (tHidrawFd <= 0) continue;
-
-      tRet = write(tHidrawFd, tBuffer, 8);
-      if (tRet < 0)
-      {
-         perror("ERROR Gadget write");
-      }
+      Prn::print(Prn::View11, "Echo <<<<<<<<< ");
    }
 }
 
@@ -157,11 +157,11 @@ void GadgetThread::threadRunFunction()
 //******************************************************************************
 //******************************************************************************
 // Thread exit function. This is called by the base class immediately
-// before the thread is terminated.
+// before the thread is terminated. It shuts down the hid api.
 
-void GadgetThread::threadExitFunction()
+void EchoThread::threadExitFunction()
 {
-   printf("GadgetThread::threadExitFunction\n");
+   printf("EchoThread::threadExitFunction\n");
 }
 
 //******************************************************************************
@@ -170,9 +170,9 @@ void GadgetThread::threadExitFunction()
 // Thread shutdown function. This posts to the close event to
 // terminate the thread and it closes the files.
 
-void GadgetThread::shutdownThread()
+void EchoThread::shutdownThread()
 {
-   printf("GadgetThread::shutdownThread\n");
+   printf("EchoThread::shutdownThread\n");
 
    // Request thread run function return.
    mTerminateFlag = true;
@@ -185,11 +185,11 @@ void GadgetThread::shutdownThread()
    // Wait for the thread to terminate.
    BaseClass::waitForThreadTerminate();
 
-   // Close the gadget file if it is open.
-   if (mGadgetFd > 0)
+   // Close the hidraw file if it is open.
+   if (mPortFd > 0)
    {
-      close(mGadgetFd);
-      mGadgetFd = -1;
+      close(mPortFd);
+      mPortFd = -1;
    }
 
    // Close the event semaphore.

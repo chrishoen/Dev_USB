@@ -1,28 +1,11 @@
 #include "stdafx.h"
 
-#include<signal.h>
-#include<unistd.h>
-
 #include "risThreadsProcess.h"
-#include "risThreadsSynch.h"
 #include "MainInit.h"
+#include "risCmdLineConsole.h"
+#include "CmdLineExec.h"
 
-#include "HidrawThread.h"
-#include "GadgetThread.h"
-
-//******************************************************************************
-//******************************************************************************
-//******************************************************************************
-// Program signal handler. Posts to a semahore to terminate the program.
-
-Ris::Threads::BinarySemaphore rTerminateSem;
-
-void sig_handler(int signum)
-{
-   // Post a program termination request.
-   printf("sig_handler %d\n", signum);
-   rTerminateSem.put();
-}
+#include "EchoThread.h"
 
 //******************************************************************************
 //******************************************************************************
@@ -34,12 +17,7 @@ int main(int argc,char** argv)
    //***************************************************************************
    //***************************************************************************
    // Begin program.
- 
-   // Register signal handler.
-   signal(SIGINT, sig_handler);
-   signal(SIGTERM, sig_handler);
 
-   // Initialize program resources.
    main_initialize(argc, argv);
 
    //***************************************************************************
@@ -47,17 +25,8 @@ int main(int argc,char** argv)
    //***************************************************************************
    // Launch program threads.
 
-   if (true)
-   {
-      gGadgetThread = new GadgetThread;
-      gGadgetThread->launchThread();
-   }
-
-   if (true)
-   {
-      gHidrawThread = new HidrawThread;
-      gHidrawThread->launchThread();
-   }
+   gEchoThread = new EchoThread;
+   gEchoThread->launchThread();
 
    //***************************************************************************
    //***************************************************************************
@@ -65,41 +34,33 @@ int main(int argc,char** argv)
    // Show program threads.
 
    Ris::Threads::showCurrentThreadInfo();
-   if (gGadgetThread) gGadgetThread->showThreadInfo();
-   if (gHidrawThread) gHidrawThread->showThreadInfo();
+   if (gEchoThread)    gEchoThread->showThreadInfo();
 
    //***************************************************************************
    //***************************************************************************
    //***************************************************************************
-   // Wait for a program termination request.
+   // Execute console command line executive, wait for user to exit.
 
-   printf("wait for main terminate sem\n");
-   rTerminateSem.get();
-   printf("got main terminate sem\n");
+   CmdLineExec* tExec = new CmdLineExec;
+   Ris::gCmdLineConsole.execute(tExec);
+   delete tExec;
 
    //***************************************************************************
    //***************************************************************************
    //***************************************************************************
    // Shutdown program threads.
 
-   if (gHidrawThread) gHidrawThread->shutdownThread();
-   if (gGadgetThread) gGadgetThread->shutdownThread();
+   if (gEchoThread)     gEchoThread->shutdownThread();
 
    //***************************************************************************
    //***************************************************************************
    //***************************************************************************
    // Delete program threads.
 
-   if (gHidrawThread)
+   if (gEchoThread)
    {
-      delete gHidrawThread;
-      gHidrawThread = 0;
-   }
-
-   if (gGadgetThread)
-   {
-      delete gGadgetThread;
-      gGadgetThread = 0;
+      delete gEchoThread;
+      gEchoThread = 0;
    }
 
    //***************************************************************************

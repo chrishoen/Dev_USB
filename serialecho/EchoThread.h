@@ -17,7 +17,7 @@ Kbd hidraw thread.
 // the keyboard, modally translates them, and writes them to the host 
 // via the gadget file descriptor that is owned by the gadget thread.
 
-class HidrawThread : public Ris::Threads::BaseThread
+class EchoThread : public Ris::Threads::BaseThread
 {
 public:
    typedef Ris::Threads::BaseThread BaseClass;
@@ -27,23 +27,30 @@ public:
    //***************************************************************************
    // Constants.
 
-   // Device path for hidraw.
-   const char* cHidrawDev = "/dev/hidraw0";
+   // Device path for usb acm.
+   const char* cPortDev = "/dev/ttyACM0";
+
+   // Device path for usb acm.
+   static const int cMaxStringSize = 256;
 
    //***************************************************************************
    //***************************************************************************
    //***************************************************************************
    // Members.
 
-   // File descriptor for hidraw.
-   int mHidrawFd;
+   // File descriptor for usb acm.
+   int mPortFd;
 
    // File descriptor for event semaphore used for close.
    int mEventFd;
 
+   // Request buffer.
+   char mRequest[cMaxStringSize];
+
    // Status.
    int mErrorCount;
-   int mReportCount;
+   int mRestartCount;
+   int mRequestCount;
 
    //***************************************************************************
    //***************************************************************************
@@ -51,7 +58,7 @@ public:
    // Methods.
 
    // Constructor.
-   HidrawThread();
+   EchoThread();
 
    //***************************************************************************
    //***************************************************************************
@@ -81,10 +88,10 @@ public:
 //******************************************************************************
 // Global instance.
 
-#ifdef _HIDRAWTHREAD_CPP_
-           HidrawThread* gHidrawThread = 0;
+#ifdef _ECHOTHREAD_CPP_
+           EchoThread* gEchoThread = 0;
 #else
-   extern  HidrawThread* gHidrawThread;
+   extern  EchoThread* gEchoThread;
 #endif
 
 //******************************************************************************
