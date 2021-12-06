@@ -72,10 +72,10 @@ void EchoThread::threadRunFunction()
 restart:
    // Guard.
    if (mTerminateFlag) return;
-   Prn::print(Prn::View11, "Echo restart %d", mRestartCount++);
 
    // Sleep.
-   BaseClass::threadSleep(250);
+   BaseClass::threadSleep(1000);
+   Prn::print(Prn::View11, "Echo restart %d", mRestartCount++);
 
    // If the hidraw file is open then close it.
    if (mPortFd > 0)
@@ -135,19 +135,24 @@ restart:
          goto restart;
       }
 
-      // Test for close.
+      // Test for abort.
       if (tPollFd[1].revents & POLLIN)
       {
          Prn::print(Prn::View11, "Echo read abort\n");
-         goto restart;
+         return;
       }
 
-      // Not closed, read a report record. 
+      // Not closed, read a request. 
       tRet = read(mPortFd, mRequest, 32);
       if (tRet < 0)
       {
-         Prn::print(Prn::View11, "ERROR Echo read");
+         Prn::print(Prn::View11, "Echo read FAIL");
          goto restart;
+      }
+      if (tRet == 0)
+      {
+         Prn::print(Prn::View11, "Echo read EMPTY");
+         BaseClass::threadSleep(1000);
       }
       Prn::print(Prn::View11, "Echo <<<<<<<<< ");
    }
