@@ -14,3 +14,4 @@ my_inc_import_CommonLib(ProtoSerial)
 my_lib_import_CommonLib(ProtoSerial)
 my_lib_import_RisLib(ProtoSerial)
 
+my_post_build_bin(ProtoSerial)

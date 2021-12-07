@@ -31,7 +31,7 @@ SerialSettings::SerialSettings()
 void SerialSettings::reset()
 {
    BaseClass::reset();
-   BaseClass::setFileName_RelAlphaFiles("RisLib/ProtoComm_SerialSettings.txt");
+   BaseClass::setFilePath("/opt/prime/files/ProtoComm_SerialSettings.txt");
 
    mSerialPortDevice[0] = 0;
    mSerialPortSetup[0] = 0;
