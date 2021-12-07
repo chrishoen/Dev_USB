@@ -152,7 +152,7 @@ restart:
       if (tRet == 0)
       {
          Prn::print(Prn::View11, "Echo read EMPTY");
-         BaseClass::threadSleep(1000);
+         goto restart;
       }
       Prn::print(Prn::View11, "Echo <<<<<<<<< ");
    }
