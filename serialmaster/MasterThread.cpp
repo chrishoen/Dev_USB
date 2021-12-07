@@ -154,7 +154,7 @@ restart:
          Prn::print(Prn::View21, "Master read EMPTY");
          goto restart;
       }
-      Prn::print(Prn::View21, "Master <<<<<<<<< ");
+      Prn::print(Prn::View21, "Master <<<<<<<<< %d", tRet);
    }
 }
 
