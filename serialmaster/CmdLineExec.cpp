@@ -27,7 +27,7 @@ void CmdLineExec::reset()
 
 void CmdLineExec::execute(Ris::CmdLineCmd* aCmd)
 {
-   if (aCmd->isCmd("TX"))       executeTx(aCmd);
+   if (aCmd->isCmd("SEND"))     executeSend(aCmd);
    if (aCmd->isCmd("GO1"))      executeGo1(aCmd);
    if (aCmd->isCmd("GO2"))      executeGo2(aCmd);
    if (aCmd->isCmd("GO3"))      executeGo3(aCmd);
@@ -41,11 +41,13 @@ void CmdLineExec::execute(Ris::CmdLineCmd* aCmd)
 //******************************************************************************
 //******************************************************************************
 
-void CmdLineExec::executeTx(Ris::CmdLineCmd* aCmd)
+void CmdLineExec::executeSend(Ris::CmdLineCmd* aCmd)
 {
-   aCmd->setArgDefault(1, "ABCD");
-   int tNumBytes = strlen(aCmd->argString(1));
-   gMasterThread->sendString(aCmd->argString(1));
+   aCmd->setArgDefault(1, "ABCDEFGH");
+   char tString[100];
+   sprintf(tString,"%s\n", aCmd->argString(1));
+   int tNumBytes = strlen(tString);
+   gMasterThread->sendString(tString);
    Prn::print(0, "send %d", tNumBytes);
 }
 

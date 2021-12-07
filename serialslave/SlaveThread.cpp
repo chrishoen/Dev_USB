@@ -142,8 +142,8 @@ restart:
          return;
       }
 
-      // Not closed, read a request. 
-      tRet = read(mPortFd, mRxBuffer, 32);
+      // Read a request. 
+      tRet = read(mPortFd, mRxBuffer, 16);
       if (tRet < 0)
       {
          Prn::print(Prn::View11, "Slave read FAIL");
@@ -154,7 +154,7 @@ restart:
          Prn::print(Prn::View11, "Slave read EMPTY");
          goto restart;
       }
-      Prn::print(Prn::View11, "Slave <<<<<<<<< ");
+      Prn::print(Prn::View11, "Slave <<<<<<<<< %d", tRet);
    }
 }
 
