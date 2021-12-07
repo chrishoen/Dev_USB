@@ -1,5 +1,6 @@
 #include "stdafx.h"
 
+#include "SlaveThread.h"
 #include "CmdLineExec.h"
 
 //******************************************************************************
@@ -26,6 +27,7 @@ void CmdLineExec::reset()
 
 void CmdLineExec::execute(Ris::CmdLineCmd* aCmd)
 {
+   if (aCmd->isCmd("SEND"))     executeSend(aCmd);
    if (aCmd->isCmd("GO1"))      executeGo1(aCmd);
    if (aCmd->isCmd("GO2"))      executeGo2(aCmd);
    if (aCmd->isCmd("GO3"))      executeGo3(aCmd);
@@ -34,6 +36,20 @@ void CmdLineExec::execute(Ris::CmdLineCmd* aCmd)
    if (aCmd->isCmd("PARMS"))    executeParms(aCmd);
 }
 
+
+//******************************************************************************
+//******************************************************************************
+//******************************************************************************
+
+void CmdLineExec::executeSend(Ris::CmdLineCmd* aCmd)
+{
+   aCmd->setArgDefault(1, "ABCDEFGH");
+   char tString[100];
+   sprintf(tString, "%s\n", aCmd->argString(1));
+   int tNumBytes = strlen(tString);
+   gSlaveThread->sendString(tString);
+   Prn::print(0, "send %d", tNumBytes);
+}
 
 //******************************************************************************
 //******************************************************************************

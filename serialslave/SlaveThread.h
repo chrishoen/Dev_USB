@@ -81,6 +81,17 @@ public:
    // Thread shutdown function. This posts to the close event to
    // terminate the thread and it closes the files.
    void shutdownThread() override;
+
+   //***************************************************************************
+   //***************************************************************************
+   //***************************************************************************
+   // Methods.
+
+   // Send a null terminated string via the serial port. A newline terminator
+   // is appended to the string before transmission. This executes in the
+   // context of the calling thread.
+   void sendString(const char* aString);
+
 };
 
 //******************************************************************************

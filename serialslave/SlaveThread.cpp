@@ -205,3 +205,39 @@ void SlaveThread::shutdownThread()
 //******************************************************************************
 //******************************************************************************
 //******************************************************************************
+// Send a null terminated string via the serial port. A newline terminator
+// is appended to the string before transmission. This executes in the
+// context of the calling thread.
+
+void SlaveThread::sendString(const char* aString)
+{
+   // Guard.
+   if (mPortFd < 0) return;
+
+   // Local variables.
+   int tNumBytes = strlen(aString);
+   int tRet = 0;
+
+   // Write bytes to the port.
+   tRet = write(mPortFd, aString, tNumBytes);
+
+   // Test the return code.
+   if (tRet < 0)
+   {
+      Prn::print(Prn::View21, "Slave write FAIL 101 %d", errno);
+      return;
+   }
+
+   if (tRet != tNumBytes)
+   {
+      Prn::print(Prn::View21, "Slave write FAIL 102");
+      return;
+   }
+
+   Prn::print(Prn::View21, "Slave write %d", tNumBytes);
+   return;
+}
+
+//******************************************************************************
+//******************************************************************************
+//******************************************************************************
