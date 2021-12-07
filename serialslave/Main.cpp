@@ -5,7 +5,7 @@
 #include "risCmdLineConsole.h"
 #include "CmdLineExec.h"
 
-#include "EchoThread.h"
+#include "SlaveThread.h"
 
 //******************************************************************************
 //******************************************************************************
@@ -25,8 +25,8 @@ int main(int argc,char** argv)
    //***************************************************************************
    // Launch program threads.
 
-   gEchoThread = new EchoThread;
-   gEchoThread->launchThread();
+   gSlaveThread = new SlaveThread;
+   gSlaveThread->launchThread();
 
    //***************************************************************************
    //***************************************************************************
@@ -34,7 +34,7 @@ int main(int argc,char** argv)
    // Show program threads.
 
    Ris::Threads::showCurrentThreadInfo();
-   if (gEchoThread)    gEchoThread->showThreadInfo();
+   if (gSlaveThread)    gSlaveThread->showThreadInfo();
 
    //***************************************************************************
    //***************************************************************************
@@ -50,17 +50,17 @@ int main(int argc,char** argv)
    //***************************************************************************
    // Shutdown program threads.
 
-   if (gEchoThread)     gEchoThread->shutdownThread();
+   if (gSlaveThread)     gSlaveThread->shutdownThread();
 
    //***************************************************************************
    //***************************************************************************
    //***************************************************************************
    // Delete program threads.
 
-   if (gEchoThread)
+   if (gSlaveThread)
    {
-      delete gEchoThread;
-      gEchoThread = 0;
+      delete gSlaveThread;
+      gSlaveThread = 0;
    }
 
    //***************************************************************************

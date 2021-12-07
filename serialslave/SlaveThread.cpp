@@ -20,18 +20,18 @@
 #include <poll.h>
 #include <errno.h>
 
-#define  _ECHOTHREAD_CPP_
-#include "EchoThread.h"
+#define  _SLAVETHREAD_CPP_
+#include "SlaveThread.h"
 
 //******************************************************************************
 //******************************************************************************
 //******************************************************************************
 // Constructor.
 
-EchoThread::EchoThread()
+SlaveThread::SlaveThread()
 {
    // Set base class thread services.
-   BaseClass::setThreadName("Echo");
+   BaseClass::setThreadName("Slave");
    BaseClass::setThreadPriorityHigh();
 
    // Set base class thread priority.
@@ -40,10 +40,10 @@ EchoThread::EchoThread()
    // Initialize variables.
    mPortFd = -1;
    mEventFd = -1;
-   mRequest[0] = 0;
+   mRxBuffer[0] = 0;
    mErrorCount = 0;
    mRestartCount = 0;
-   mRequestCount = 0;
+   mRxCount = 0;
 }
 
 //******************************************************************************
@@ -52,9 +52,9 @@ EchoThread::EchoThread()
 // Thread init function. This is called by the base class immediately
 // after the thread starts running. It initializes something.
 
-void EchoThread::threadInitFunction()
+void SlaveThread::threadInitFunction()
 {
-   printf("EchoThread::threadInitFunction\n");
+   printf("SlaveThread::threadInitFunction\n");
 
    // Open the event.
    mEventFd = eventfd(0, EFD_SEMAPHORE);
@@ -67,7 +67,7 @@ void EchoThread::threadInitFunction()
 // after the thread init function. It runs a loop that waits for the
 // hid keyboard input.
 
-void EchoThread::threadRunFunction()
+void SlaveThread::threadRunFunction()
 {
 restart:
    // Guard.
@@ -75,11 +75,12 @@ restart:
 
    // Sleep.
    BaseClass::threadSleep(1000);
-   Prn::print(Prn::View11, "Echo restart %d", mRestartCount++);
+   Prn::print(Prn::View11, "Slave restart %d", mRestartCount++);
 
    // If the hidraw file is open then close it.
    if (mPortFd > 0)
    {
+      Prn::print(Prn::View11, "Slave close");
       close(mPortFd);
       mPortFd = -1;
    }
@@ -96,12 +97,11 @@ restart:
    //***************************************************************************
    // Open hidraw file.
 
-   Prn::print(Prn::View11, "Echo open");
+   Prn::print(Prn::View11, "Slave open");
    mPortFd = open(cPortDev, O_RDWR, S_IRUSR | S_IWUSR);
-
    if (mPortFd < 0)
    {
-      Prn::print(Prn::View11, "Echo open FAIL");
+      Prn::print(Prn::View11, "Slave open FAIL");
       goto restart;
    }
 
@@ -112,7 +112,7 @@ restart:
 
    while (!BaseClass::mTerminateFlag)
    {
-      Prn::print(Prn::View11, "Echo read request********************************************** %d\n", mRequestCount++);
+      Prn::print(Prn::View11, "Slave read start********************************************** %d", mRxCount++);
 
       //************************************************************************
       //************************************************************************
@@ -131,30 +131,30 @@ restart:
       tRet = poll(&tPollFd[0], 2, -1);
       if (tRet < 0)
       {
-         Prn::print(Prn::View11, "Echo poll FAIL");
+         Prn::print(Prn::View11, "Slave poll FAIL");
          goto restart;
       }
 
       // Test for abort.
       if (tPollFd[1].revents & POLLIN)
       {
-         Prn::print(Prn::View11, "Echo read abort\n");
+         Prn::print(Prn::View11, "Slave read abort");
          return;
       }
 
       // Not closed, read a request. 
-      tRet = read(mPortFd, mRequest, 32);
+      tRet = read(mPortFd, mRxBuffer, 32);
       if (tRet < 0)
       {
-         Prn::print(Prn::View11, "Echo read FAIL");
+         Prn::print(Prn::View11, "Slave read FAIL");
          goto restart;
       }
       if (tRet == 0)
       {
-         Prn::print(Prn::View11, "Echo read EMPTY");
+         Prn::print(Prn::View11, "Slave read EMPTY");
          goto restart;
       }
-      Prn::print(Prn::View11, "Echo <<<<<<<<< ");
+      Prn::print(Prn::View11, "Slave <<<<<<<<< ");
    }
 }
 
@@ -164,9 +164,9 @@ restart:
 // Thread exit function. This is called by the base class immediately
 // before the thread is terminated. It shuts down the hid api.
 
-void EchoThread::threadExitFunction()
+void SlaveThread::threadExitFunction()
 {
-   printf("EchoThread::threadExitFunction\n");
+   printf("SlaveThread::threadExitFunction\n");
 }
 
 //******************************************************************************
@@ -175,9 +175,9 @@ void EchoThread::threadExitFunction()
 // Thread shutdown function. This posts to the close event to
 // terminate the thread and it closes the files.
 
-void EchoThread::shutdownThread()
+void SlaveThread::shutdownThread()
 {
-   printf("EchoThread::shutdownThread\n");
+   printf("SlaveThread::shutdownThread\n");
 
    // Request thread run function return.
    mTerminateFlag = true;
@@ -193,6 +193,7 @@ void EchoThread::shutdownThread()
    // Close the hidraw file if it is open.
    if (mPortFd > 0)
    {
+      Prn::print(Prn::View11, "Slave close");
       close(mPortFd);
       mPortFd = -1;
    }

@@ -17,7 +17,7 @@ Kbd hidraw thread.
 // the keyboard, modally translates them, and writes them to the host 
 // via the gadget file descriptor that is owned by the gadget thread.
 
-class EchoThread : public Ris::Threads::BaseThread
+class MasterThread : public Ris::Threads::BaseThread
 {
 public:
    typedef Ris::Threads::BaseThread BaseClass;
@@ -45,12 +45,12 @@ public:
    int mEventFd;
 
    // Request buffer.
-   char mRequest[cMaxStringSize];
+   char mRxBuffer[cMaxStringSize];
 
    // Status.
    int mErrorCount;
    int mRestartCount;
-   int mRequestCount;
+   int mRxCount;
 
    //***************************************************************************
    //***************************************************************************
@@ -58,7 +58,7 @@ public:
    // Methods.
 
    // Constructor.
-   EchoThread();
+   MasterThread();
 
    //***************************************************************************
    //***************************************************************************
@@ -81,6 +81,17 @@ public:
    // Thread shutdown function. This posts to the close event to
    // terminate the thread and it closes the files.
    void shutdownThread() override;
+
+   //***************************************************************************
+   //***************************************************************************
+   //***************************************************************************
+   // Methods.
+
+   // Send a null terminated string via the serial port. A newline terminator
+   // is appended to the string before transmission. This executes in the
+   // context of the calling thread.
+   void sendString(const char* aString);
+
 };
 
 //******************************************************************************
@@ -88,10 +99,10 @@ public:
 //******************************************************************************
 // Global instance.
 
-#ifdef _ECHOTHREAD_CPP_
-           EchoThread* gEchoThread = 0;
+#ifdef _MASTERTHREAD_CPP_
+           MasterThread* gMasterThread = 0;
 #else
-   extern  EchoThread* gEchoThread;
+   extern  MasterThread* gMasterThread;
 #endif
 
 //******************************************************************************
