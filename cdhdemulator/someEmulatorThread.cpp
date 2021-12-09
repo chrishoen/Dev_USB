@@ -139,7 +139,7 @@ restart:
       //************************************************************************
       //************************************************************************
       //************************************************************************
-      // Read string.
+      // Read command string.
 
       // Blocking poll for read or abort.
       struct pollfd tPollFd[2];
@@ -164,8 +164,8 @@ restart:
          return;
       }
 
-      // Read a request. 
-      tRet = read(mPortFd, mRxBuffer, 200);
+      // Read a command string.
+      tRet = read(mPortFd, mCmdExec.mRxBuffer, 200);
       if (tRet < 0)
       {
          Prn::print(Prn::View11, "Emulator read FAIL");
@@ -176,7 +176,28 @@ restart:
          Prn::print(Prn::View11, "Emulator read EMPTY");
          goto restart;
       }
-      Prn::print(Prn::View11, "Emulator <<<<<<<<< %d", tRet);
+      Prn::print(Prn::View11, "Emulator Rx %d", tRet);
+
+      //************************************************************************
+      //************************************************************************
+      //************************************************************************
+      // Write response string.
+
+      mCmdExec.mRxLength = tRet;
+      mCmdExec.doProcess();
+      Prn::print(Prn::View11, "Emulator Tx %d", mCmdExec.mTxLength);
+
+      // Write a response string.
+      if (mCmdExec.mTxLength)
+      {
+         // Write a response string.
+         tRet = write(mPortFd, mCmdExec.mTxBuffer, mCmdExec.mTxLength);
+         if (tRet < 0)
+         {
+            Prn::print(Prn::View11, "Emulator write FAIL");
+            goto restart;
+         }
+      }
    }
 }
 
