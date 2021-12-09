@@ -123,7 +123,7 @@ restart:
    //***************************************************************************
    //***************************************************************************
    //***************************************************************************
-   // Read string.
+   // Loop to read string.
 
    while (!BaseClass::mTerminateFlag)
    {
@@ -132,9 +132,9 @@ restart:
       //************************************************************************
       //************************************************************************
       //************************************************************************
-      // Read report.
+      // Read string.
 
-      // Blocking poll for read or close.
+      // Blocking poll for read or abort.
       struct pollfd tPollFd[2];
       tPollFd[0].fd = mPortFd;
       tPollFd[0].events = POLLIN;
@@ -158,7 +158,7 @@ restart:
       }
 
       // Read a request. 
-      tRet = read(mPortFd, mRxBuffer, 32);
+      tRet = read(mPortFd, mRxBuffer, 200);
       if (tRet < 0)
       {
          Prn::print(Prn::View11, "Slave read FAIL");
