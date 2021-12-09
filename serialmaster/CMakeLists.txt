@@ -9,4 +9,11 @@ my_add_pch (serialmaster)
 my_inc_import_RisLib(serialmaster)
 my_lib_import_RisLib(serialmaster)
 
-my_post_build_bin(serialmaster)
+if(MSVC)
+   install(TARGETS serialmaster DESTINATION "C:/aaa_prime/Example")
+elseif(NOT CMAKE_SYSTEM_VERSION EQUAL 101)
+   install(TARGETS serialmaster DESTINATION "/opt/prime/bin")
+else()
+   my_post_build_bin(serialmaster)
+endif()
+
