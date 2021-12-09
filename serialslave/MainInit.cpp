@@ -10,9 +10,7 @@
 
 void main_initialize(int argc,char** argv)
 {
-   printf("serialecho Program********************************************BEGIN\n");
-   printf("serialecho Program********************************************BEGIN\n");
-   printf("serialecho Program********************************************BEGIN\n\n");
+   printf("serialslave Program********************************************BEGIN\n");
 
    //***************************************************************************
    //***************************************************************************
@@ -49,9 +47,7 @@ void main_initialize(int argc,char** argv)
    //***************************************************************************
    //***************************************************************************
    //***************************************************************************
-   Prn::print(Prn::View11, "serialecho Program********************************************BEGIN");
-   Prn::print(Prn::View11, "serialecho Program********************************************BEGIN");
-   Prn::print(Prn::View11, "serialecho Program********************************************BEGIN");
+   Prn::print(Prn::View11, "serialslave Program*******************************************BEGIN");
 }
 
 //******************************************************************************
@@ -61,11 +57,9 @@ void main_initialize(int argc,char** argv)
 
 void main_finalize()
 {
-   Prn::print(Prn::View11, "serialecho Program********************************************END");
+   Prn::print(Prn::View11, "serialslave Program*******************************************END");
    printf("\n");
-   printf("serialecho Program********************************************END\n");
-   printf("serialecho Program********************************************END\n");
-   printf("serialecho Program********************************************END\n");
+   printf("serialslave Program********************************************END\n");
 
    // Finalize print facility.
    Prn::finalizePrint();

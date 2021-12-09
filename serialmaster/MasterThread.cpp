@@ -6,19 +6,19 @@
 //******************************************************************************
 #include "stdafx.h"
 
-#include <linux/types.h>
-#include <linux/input.h>
-#include <linux/hidraw.h>
-
-#include <sys/ioctl.h>
-#include <sys/types.h>
 #include <sys/stat.h>
-#include <sys/eventfd.h>
-#include <poll.h>
+#include <errno.h>
 #include <fcntl.h>
+#include <termios.h>
 #include <unistd.h>
+
+#include <signal.h>
 #include <poll.h>
 #include <errno.h>
+#include <sys/eventfd.h>
+#include <sys/ioctl.h>
+#include <sys/stat.h>
+#include <linux/serial.h>
 
 #define  _MASTERTHREAD_CPP_
 #include "MasterThread.h"
@@ -77,14 +77,6 @@ restart:
    BaseClass::threadSleep(1000);
    Prn::print(Prn::View21, "Master restart %d", mRestartCount++);
 
-   // If the hidraw file is open then close it.
-   if (mPortFd > 0)
-   {
-      Prn::print(Prn::View21, "Master close");
-      close(mPortFd);
-      mPortFd = -1;
-   }
-
    //***************************************************************************
    //***************************************************************************
    //***************************************************************************
@@ -95,20 +87,43 @@ restart:
    //***************************************************************************
    //***************************************************************************
    //***************************************************************************
-   // Open hidraw file.
+   // Open device.
 
-   Prn::print(Prn::View21, "Master open");
+   // If the device is open then close it.
+   if (mPortFd > 0)
+   {
+      Prn::print(Prn::View21, "Master close");
+      close(mPortFd);
+      mPortFd = -1;
+   }
+
+   // Open the device.
    mPortFd = open(cPortDev, O_RDWR, S_IRUSR | S_IWUSR);
    if (mPortFd < 0)
    {
-      Prn::print(Prn::View21, "Master open FAIL");
+      Prn::print(Prn::View21, "Master open FAIL 101");
       goto restart;
    }
+
+   // Configure the port for raw data.
+   struct termios tOptions;
+   tcgetattr(mPortFd, &tOptions);
+   cfmakeraw(&tOptions);
+   cfsetispeed(&tOptions, B115200);
+   cfsetospeed(&tOptions, B115200);
+
+   if (tcsetattr(mPortFd, TCSANOW, &tOptions) < 0)
+   {
+      Prn::print(Prn::View21, "Master open FAIL 102");
+      goto restart;
+   }
+
+   Prn::print(Prn::View21, "Master open");
 
    //***************************************************************************
    //***************************************************************************
    //***************************************************************************
-   // Read report.
+   // Read string.
 
    while (!BaseClass::mTerminateFlag)
    {
@@ -142,7 +157,7 @@ restart:
          return;
       }
 
-      // Not abort, read a request. 
+      // Read a request. 
       tRet = read(mPortFd, mRxBuffer, 32);
       if (tRet < 0)
       {
@@ -190,7 +205,7 @@ void MasterThread::shutdownThread()
    // Wait for the thread to terminate.
    BaseClass::waitForThreadTerminate();
 
-   // Close the hidraw file if it is open.
+   // Close the device if it is open.
    if (mPortFd > 0)
    {
       Prn::print(Prn::View21, "Master close");
