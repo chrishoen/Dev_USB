@@ -27,12 +27,11 @@ void main_initialize(int argc,char** argv)
 
    // Initialize print.
    Prn::resetPrint();
-   Prn::useConsole(1);
    Prn::initializePrint();
 
    // Initialize print filters.
-   Prn::setFilter(Prn::View11, true, 1);
-   Prn::setFilter(Prn::View12, false, 1);
+   Prn::setFilter(Prn::Show1, true);
+   Prn::setFilter(Prn::Show2, false);
 
    //***************************************************************************
    //***************************************************************************
@@ -50,7 +49,7 @@ void main_initialize(int argc,char** argv)
    //***************************************************************************
    //***************************************************************************
    //***************************************************************************
-   Prn::print(Prn::View11, "cdhdemulator Program*******************************************BEGIN");
+   Prn::print(Prn::Show1, "cdhdemulator Program*******************************************BEGIN");
 }
 
 //******************************************************************************
@@ -60,7 +59,7 @@ void main_initialize(int argc,char** argv)
 
 void main_finalize()
 {
-   Prn::print(Prn::View11, "cdhdemulator Program*******************************************END");
+   Prn::print(Prn::Show1, "cdhdemulator Program*******************************************END");
    printf("\n");
    printf("cdhdemulator Program********************************************END\n");
 

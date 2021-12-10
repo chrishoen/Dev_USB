@@ -28,11 +28,11 @@ void main_initialize(int argc,char** argv)
    Prn::setFilter(Prn::ThreadRun2, false);
    Prn::setFilter(Prn::ThreadRun3, false);
    Prn::setFilter(Prn::ThreadRun4, false);
-   Prn::setFilter(Prn::View11, true, 1);
-   Prn::setFilter(Prn::View12, false, 1);
+   Prn::setFilter(Prn::Show1, true, 1);
+   Prn::setFilter(Prn::Show2, false, 1);
 
    Prn::print(0, "Test*******************************************BEGIN");
-   Prn::print(Prn::View11, "Test*******************************************BEGIN");
+   Prn::print(Prn::Show1, "Test*******************************************BEGIN");
 
 }
 

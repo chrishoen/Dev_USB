@@ -31,12 +31,11 @@ void main_initialize(int argc,char** argv)
 
    // Initialize print.
    Prn::resetPrint();
-   Prn::useConsole(2);
    Prn::initializePrint();
 
    // Initialize print filters.
-   Prn::setFilter(Prn::View21, true, 2);
-   Prn::setFilter(Prn::View22, false, 2);
+   Prn::setFilter(Prn::Show1, true);
+   Prn::setFilter(Prn::Show2, false);
 
    //***************************************************************************
    //***************************************************************************
@@ -46,7 +45,7 @@ void main_initialize(int argc,char** argv)
    //***************************************************************************
    //***************************************************************************
    //***************************************************************************
-   Prn::print(Prn::View21, "serialmaster Program******************************************BEGIN");
+   Prn::print(Prn::Show1, "serialmaster Program******************************************BEGIN");
 }
 
 //******************************************************************************
@@ -56,7 +55,7 @@ void main_initialize(int argc,char** argv)
 
 void main_finalize()
 {
-   Prn::print(Prn::View21, "serialmaster Program******************************************END");
+   Prn::print(Prn::Show1, "serialmaster Program******************************************END");
    printf("\n");
    printf("serialmaster Program******************************************END\n");
 

@@ -75,7 +75,7 @@ restart:
 
    // Sleep.
    BaseClass::threadSleep(1000);
-   Prn::print(Prn::View11, "Slave restart %d", mRestartCount++);
+   Prn::print(Prn::Show1, "Slave restart %d", mRestartCount++);
 
    //***************************************************************************
    //***************************************************************************
@@ -92,7 +92,7 @@ restart:
    // If the device is open then close it.
    if (mPortFd > 0)
    {
-      Prn::print(Prn::View11, "Slave close");
+      Prn::print(Prn::Show1, "Slave close");
       close(mPortFd);
       mPortFd = -1;
    }
@@ -101,7 +101,7 @@ restart:
    mPortFd = open(cPortDev, O_RDWR, S_IRUSR | S_IWUSR);
    if (mPortFd < 0)
    {
-      Prn::print(Prn::View11, "Slave open FAIL 101");
+      Prn::print(Prn::Show1, "Slave open FAIL 101");
       goto restart;
    }
 
@@ -114,11 +114,11 @@ restart:
 
    if (tcsetattr(mPortFd, TCSANOW, &tOptions) < 0)
    {
-      Prn::print(Prn::View11, "Slave open FAIL 102");
+      Prn::print(Prn::Show1, "Slave open FAIL 102");
       goto restart;
    }
 
-   Prn::print(Prn::View11, "Slave open");
+   Prn::print(Prn::Show1, "Slave open");
 
    //***************************************************************************
    //***************************************************************************
@@ -127,7 +127,7 @@ restart:
 
    while (!BaseClass::mTerminateFlag)
    {
-      Prn::print(Prn::View11, "Slave read start********************************************** %d", mRxCount++);
+      Prn::print(Prn::Show1, "Slave read start********************************************** %d", mRxCount++);
 
       //************************************************************************
       //************************************************************************
@@ -146,14 +146,14 @@ restart:
       tRet = poll(&tPollFd[0], 2, -1);
       if (tRet < 0)
       {
-         Prn::print(Prn::View11, "Slave poll FAIL");
+         Prn::print(Prn::Show1, "Slave poll FAIL");
          goto restart;
       }
 
       // Test for abort.
       if (tPollFd[1].revents & POLLIN)
       {
-         Prn::print(Prn::View11, "Slave read abort");
+         Prn::print(Prn::Show1, "Slave read abort");
          return;
       }
 
@@ -161,15 +161,15 @@ restart:
       tRet = read(mPortFd, mRxBuffer, 200);
       if (tRet < 0)
       {
-         Prn::print(Prn::View11, "Slave read FAIL");
+         Prn::print(Prn::Show1, "Slave read FAIL");
          goto restart;
       }
       if (tRet == 0)
       {
-         Prn::print(Prn::View11, "Slave read EMPTY");
+         Prn::print(Prn::Show1, "Slave read EMPTY");
          goto restart;
       }
-      Prn::print(Prn::View11, "Slave <<<<<<<<< %d", tRet);
+      Prn::print(Prn::Show1, "Slave <<<<<<<<< %d", tRet);
    }
 }
 
@@ -208,7 +208,7 @@ void SlaveThread::shutdownThread()
    // Close the device if it is open.
    if (mPortFd > 0)
    {
-      Prn::print(Prn::View11, "Slave close");
+      Prn::print(Prn::Show1, "Slave close");
       close(mPortFd);
       mPortFd = -1;
    }
@@ -239,17 +239,17 @@ void SlaveThread::sendString(const char* aString)
    // Test the return code.
    if (tRet < 0)
    {
-      Prn::print(Prn::View21, "Slave write FAIL 101 %d", errno);
+      Prn::print(Prn::Show1, "Slave write FAIL 101 %d", errno);
       return;
    }
 
    if (tRet != tNumBytes)
    {
-      Prn::print(Prn::View21, "Slave write FAIL 102");
+      Prn::print(Prn::Show1, "Slave write FAIL 102");
       return;
    }
 
-   Prn::print(Prn::View21, "Slave write %d", tNumBytes);
+   Prn::print(Prn::Show1, "Slave write %d", tNumBytes);
    return;
 }
 

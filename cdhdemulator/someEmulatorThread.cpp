@@ -82,7 +82,7 @@ restart:
 
    // Sleep.
    BaseClass::threadSleep(1000);
-   Prn::print(Prn::View11, "Emulator restart %d", mRestartCount++);
+   Prn::print(Prn::Show1, "Emulator restart %d", mRestartCount++);
 
    //***************************************************************************
    //***************************************************************************
@@ -99,7 +99,7 @@ restart:
    // If the device is open then close it.
    if (mPortFd > 0)
    {
-      Prn::print(Prn::View11, "Emulator close");
+      Prn::print(Prn::Show1, "Emulator close");
       close(mPortFd);
       mPortFd = -1;
    }
@@ -108,7 +108,7 @@ restart:
    mPortFd = open(cPortDev, O_RDWR, S_IRUSR | S_IWUSR);
    if (mPortFd < 0)
    {
-      Prn::print(Prn::View11, "Emulator open FAIL 101");
+      Prn::print(Prn::Show1, "Emulator open FAIL 101");
       goto restart;
    }
 
@@ -121,11 +121,11 @@ restart:
 
    if (tcsetattr(mPortFd, TCSANOW, &tOptions) < 0)
    {
-      Prn::print(Prn::View11, "Emulator open FAIL 102");
+      Prn::print(Prn::Show1, "Emulator open FAIL 102");
       goto restart;
    }
 
-   Prn::print(Prn::View11, "Emulator open");
+   Prn::print(Prn::Show1, "Emulator open");
 
    //***************************************************************************
    //***************************************************************************
@@ -134,7 +134,7 @@ restart:
 
    while (!BaseClass::mTerminateFlag)
    {
-      Prn::print(Prn::View11, "Emulator read start********************************************** %d", mRxCount++);
+      Prn::print(Prn::Show1, "Emulator read start********************************************** %d", mRxCount++);
 
       //************************************************************************
       //************************************************************************
@@ -153,14 +153,14 @@ restart:
       tRet = poll(&tPollFd[0], 2, -1);
       if (tRet < 0)
       {
-         Prn::print(Prn::View11, "Emulator poll FAIL");
+         Prn::print(Prn::Show1, "Emulator poll FAIL");
          goto restart;
       }
 
       // Test for abort.
       if (tPollFd[1].revents & POLLIN)
       {
-         Prn::print(Prn::View11, "Emulator read abort");
+         Prn::print(Prn::Show1, "Emulator read abort");
          return;
       }
 
@@ -168,15 +168,15 @@ restart:
       tRet = read(mPortFd, mCmdExec.mRxBuffer, 200);
       if (tRet < 0)
       {
-         Prn::print(Prn::View11, "Emulator read FAIL");
+         Prn::print(Prn::Show1, "Emulator read FAIL");
          goto restart;
       }
       if (tRet == 0)
       {
-         Prn::print(Prn::View11, "Emulator read EMPTY");
+         Prn::print(Prn::Show1, "Emulator read EMPTY");
          goto restart;
       }
-      Prn::print(Prn::View11, "Emulator Rx %d", tRet);
+      Prn::print(Prn::Show1, "Emulator Rx %d", tRet);
 
       //************************************************************************
       //************************************************************************
@@ -185,7 +185,7 @@ restart:
 
       mCmdExec.mRxLength = tRet;
       mCmdExec.doProcess();
-      Prn::print(Prn::View11, "Emulator Tx %d", mCmdExec.mTxLength);
+      Prn::print(Prn::Show1, "Emulator Tx %d", mCmdExec.mTxLength);
 
       // Write a response string.
       if (mCmdExec.mTxLength)
@@ -194,7 +194,7 @@ restart:
          tRet = write(mPortFd, mCmdExec.mTxBuffer, mCmdExec.mTxLength);
          if (tRet < 0)
          {
-            Prn::print(Prn::View11, "Emulator write FAIL");
+            Prn::print(Prn::Show1, "Emulator write FAIL");
             goto restart;
          }
       }
@@ -236,7 +236,7 @@ void EmulatorThread::shutdownThread()
    // Close the device if it is open.
    if (mPortFd > 0)
    {
-      Prn::print(Prn::View11, "Emulator close");
+      Prn::print(Prn::Show1, "Emulator close");
       close(mPortFd);
       mPortFd = -1;
    }
@@ -267,17 +267,17 @@ void EmulatorThread::sendString(const char* aString)
    // Test the return code.
    if (tRet < 0)
    {
-      Prn::print(Prn::View21, "Emulator write FAIL 101 %d", errno);
+      Prn::print(Prn::Show1, "Emulator write FAIL 101 %d", errno);
       return;
    }
 
    if (tRet != tNumBytes)
    {
-      Prn::print(Prn::View21, "Emulator write FAIL 102");
+      Prn::print(Prn::Show1, "Emulator write FAIL 102");
       return;
    }
 
-   Prn::print(Prn::View21, "Emulator write %d", tNumBytes);
+   Prn::print(Prn::Show1, "Emulator write %d", tNumBytes);
    return;
 }
 
