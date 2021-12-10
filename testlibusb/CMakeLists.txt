@@ -5,6 +5,7 @@ my_find_src_files (src_files testlibusb)
 add_executable (testlibusb ${src_files})
 my_add_compile_options (testlibusb)
 
+my_inc_import_libusb(testlibusb)
 my_lib_import_libusb(testlibusb)
 
 if(MSVC)

@@ -19,6 +19,8 @@ function(my_init_global_import_variables)
       set (MyRisLibImportPath  "/opt/prime/lib/libRisLib.so" PARENT_SCOPE)
       set (MyDspLibIncludePath "/opt/prime/include/DspLib" PARENT_SCOPE)
       set (MyDspLibImportPath  "/opt/prime/lib/libDspLib.so" PARENT_SCOPE)
+      set (MyUsbIncludePath "/usr/local/include/libusb-1.0" PARENT_SCOPE)
+      set (MyUsbImportPath  "/usr/local/lib/libusb-1.0.so" PARENT_SCOPE)
    endif()
 
 endfunction()
@@ -78,8 +80,20 @@ endfunction()
 function(my_lib_import_libusb _target)
 
    target_link_libraries(${_target} usb-1.0)
+   return()
+
+   add_library(UsbLib SHARED IMPORTED)
+   set_target_properties(UsbLib PROPERTIES IMPORTED_LOCATION ${MyUsbImportPath})
+   target_link_libraries(${_target} UsbLib)
 
 endfunction()
+
+function(my_inc_import_libusb _target)
+
+   target_include_directories(${_target} PUBLIC ${MyUsbIncludePath})
+
+endfunction()
+
 
 #*******************************************************************************
 #*******************************************************************************
