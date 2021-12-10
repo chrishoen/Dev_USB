@@ -11,6 +11,9 @@ project ("Dev_USB")
 my_init_global_import_variables()
 my_init_post_build_variables()
 
+add_subdirectory ("testlibusb")
+return()
+
 add_subdirectory ("serialmaster")
 return()
 
