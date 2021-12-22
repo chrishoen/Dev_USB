@@ -7,7 +7,7 @@ include(MyPostBuild.cmake)
 include(MyGlobalImports.cmake)
 include(MyLocalImports.cmake)
 
-project ("Dev_USB")
+project ("Dev_USBHost")
 my_init_global_import_variables()
 my_init_post_build_variables()
 
