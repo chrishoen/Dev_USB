@@ -11,9 +11,10 @@ project ("Dev_USB")
 my_init_global_import_variables()
 my_init_post_build_variables()
 
-add_subdirectory ("motorcon")
+add_subdirectory ("serialmaster")
 return()
 
+add_subdirectory ("motorcon")
 add_subdirectory ("testlibusb")
 return()
 
