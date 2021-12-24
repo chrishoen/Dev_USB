@@ -5,37 +5,45 @@
 #include "stdafx.h"
 
 #include "risCmdLineFile.h"
-#include "risPortableCalls.h"
 
-
-#define  _PROCOSERIALSETTINGS_CPP_
-#include "procoSerialSettings.h"
+#define  _SOMEUSBHOSTPARMS_CPP_
+#include "someUSBHostParms.h"
 
 //******************************************************************************
 //******************************************************************************
 //******************************************************************************
 
-namespace ProtoComm
+namespace Some
 {
 
+//******************************************************************************
+//******************************************************************************
+//******************************************************************************
 //******************************************************************************
 //******************************************************************************
 //******************************************************************************
 // Constructor.
 
-SerialSettings::SerialSettings()
+USBHostParms::USBHostParms()
 {
    reset();
 }
 
-void SerialSettings::reset()
+void USBHostParms::reset()
 {
    BaseClass::reset();
-   BaseClass::setFilePath("/opt/prime/files/ProtoComm_SerialSettings.txt");
+   if (Ris::portableIsWindows())
+   {
+      BaseClass::setFilePath("c:/aaa_prime/files/USBHost_Parms.txt");
+   }
+   else
+   {
+      BaseClass::setFilePath("/opt/prime/files/USBHost_Parms.txt");
+   }
 
-   mSerialPortDevice[0] = 0;
-   mSerialPortSetup[0] = 0;
-   mSerialRxTimeout = 0;
+   mHostDevPath[0]=0;
+   mDelay1 = 0;
+   mDelay2 = 0;
 }
 
 //******************************************************************************
@@ -43,17 +51,15 @@ void SerialSettings::reset()
 //******************************************************************************
 // Show.
 
-void SerialSettings::show()
+void USBHostParms::show()
 {
    printf("\n");
-   printf("SerialSettings************************************************ %s\n", mTargetSection);
+   printf("USBHostParms************************************************ %s\n", mTargetSection);
 
-   printf("SerialPortDevice           %-12s\n", mSerialPortDevice);
-   printf("SerialPortSetup            %-12s\n", mSerialPortSetup);
-   printf("SerialRxTimeout            %5d\n",   mSerialRxTimeout);
-
-   printf("SerialSettings************************************************\n");
    printf("\n");
+   printf("HostDevPath              %-10s\n", mHostDevPath);
+   printf("Delay1                   %-10d\n", mDelay1);
+   printf("Delay2                   %-10d\n", mDelay2);
 }
 
 //******************************************************************************
@@ -63,13 +69,13 @@ void SerialSettings::show()
 // member variable.  Only process commands for the target section.This is
 // called by the associated command file object for each command in the file.
 
-void SerialSettings::execute(Ris::CmdLineCmd* aCmd)
+void USBHostParms::execute(Ris::CmdLineCmd* aCmd)
 {
    if (!isTargetSection(aCmd)) return;
 
-   if (aCmd->isCmd("SerialPortDevice"))  aCmd->copyArgString(1, mSerialPortDevice, cMaxStringSize);
-   if (aCmd->isCmd("SerialPortSetup"))   aCmd->copyArgString(1, mSerialPortSetup, cMaxStringSize);
-   if (aCmd->isCmd("SerialRxTimeout"))   mSerialRxTimeout = aCmd->argInt(1);
+   if (aCmd->isCmd("HostDevPath"))           aCmd->copyArgString(1, mHostDevPath, cMaxStringSize);
+   if (aCmd->isCmd("Delay1"))                mDelay1 = aCmd->argInt(1);
+   if (aCmd->isCmd("Delay2"))                mDelay2 = aCmd->argInt(1);
 }
 
 //******************************************************************************
@@ -78,7 +84,7 @@ void SerialSettings::execute(Ris::CmdLineCmd* aCmd)
 // Calculate expanded member variables. This is called after the entire
 // section of the command file has been processed.
 
-void SerialSettings::expand()
+void USBHostParms::expand()
 {
 }
 

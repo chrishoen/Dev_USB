@@ -28,9 +28,6 @@ public:
    // Constants.
 
    // Device path for usb acm.
-   const char* cPortDev = "/dev/ttyACM0";
-
-   // Device path for usb acm.
    static const int cMaxStringSize = 256;
 
    //***************************************************************************

@@ -20,6 +20,8 @@
 #include <sys/stat.h>
 #include <linux/serial.h>
 
+#include "someUSBHostParms.h"
+
 #define  _MASTERTHREAD_CPP_
 #include "MasterThread.h"
 
@@ -98,7 +100,7 @@ restart:
    }
 
    // Open the device.
-   mPortFd = open(cPortDev, O_RDWR, S_IRUSR | S_IWUSR);
+   mPortFd = open(Some::gUSBHostParms.mHostDevPath, O_RDWR, S_IRUSR | S_IWUSR);
    if (mPortFd < 0)
    {
       Prn::print(Prn::Show1, "Master open FAIL 101");

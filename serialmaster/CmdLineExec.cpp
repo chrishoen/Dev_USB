@@ -1,5 +1,6 @@
 #include "stdafx.h"
 
+#include "someUSBHostParms.h"
 #include "MasterThread.h"
 #include "CmdLineExec.h"
 
@@ -97,6 +98,9 @@ void CmdLineExec::executeGo5(Ris::CmdLineCmd* aCmd)
 
 void CmdLineExec::executeParms(Ris::CmdLineCmd* aCmd)
 {
+   Some::gUSBHostParms.reset();
+   Some::gUSBHostParms.readSection("default");
+   Some::gUSBHostParms.show();
 }
 
 //******************************************************************************

@@ -7,6 +7,9 @@ my_add_compile_options (serialmaster)
 my_add_pch (serialmaster)
 
 my_inc_import_RisLib(serialmaster)
+my_inc_import_CommonLib(serialmaster)
+
+my_lib_import_CommonLib(serialmaster)
 my_lib_import_RisLib(serialmaster)
 
 if(MSVC)
