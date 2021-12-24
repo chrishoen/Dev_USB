@@ -40,6 +40,7 @@ MasterThread::MasterThread()
    BaseClass::setThreadPriorityHigh();
 
    // Initialize variables.
+   strcpy(mPortPath,Some::gUSBHostParms.mHostDevPath);
    mPortFd = -1;
    mEventFd = -1;
    mRxBuffer[0] = 0;
@@ -71,13 +72,19 @@ void MasterThread::threadInitFunction()
 
 void MasterThread::threadRunFunction()
 {
+   // Top of the loop.
+   mRestartCount = 0;
 restart:
    // Guard.
    if (mTerminateFlag) return;
 
    // Sleep.
-   BaseClass::threadSleep(1000);
-   Prn::print(Prn::Show1, "Master restart %d", mRestartCount++);
+   if (mRestartCount)
+   {
+      BaseClass::threadSleep(1000);
+   }
+   Prn::print(Prn::Show1, "Master restart %d %s", mRestartCount, mPortPath);
+   mRestartCount++;
 
    //***************************************************************************
    //***************************************************************************
@@ -100,7 +107,7 @@ restart:
    }
 
    // Open the device.
-   mPortFd = open(Some::gUSBHostParms.mHostDevPath, O_RDWR, S_IRUSR | S_IWUSR);
+   mPortFd = open(mPortPath, O_RDWR, S_IRUSR | S_IWUSR);
    if (mPortFd < 0)
    {
       Prn::print(Prn::Show1, "Master open FAIL 101");

@@ -35,7 +35,10 @@ public:
    //***************************************************************************
    // Members.
 
-   // File descriptor for usb acm.
+   // File path for usb port.
+   char mPortPath[64];
+
+   // File descriptor for usb port.
    int mPortFd;
 
    // File descriptor for event semaphore used for close.
