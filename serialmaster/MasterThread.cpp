@@ -136,7 +136,7 @@ restart:
 
    while (!BaseClass::mTerminateFlag)
    {
-      Prn::print(Prn::Show1, "Master read start********************************************** %d", mRxCount++);
+      Prn::print(Prn::Show4, "Master read start********************************************** %d", mRxCount++);
 
       //************************************************************************
       //************************************************************************
@@ -166,7 +166,7 @@ restart:
          return;
       }
 
-      // Read a request. 
+      // Read a string. 
       tRet = read(mPortFd, mRxBuffer, 32);
       if (tRet < 0)
       {
@@ -178,7 +178,15 @@ restart:
          Prn::print(Prn::Show1, "Master read EMPTY");
          goto restart;
       }
-      Prn::print(Prn::Show1, "Master <<<<<<<<< %d", tRet);
+      // Null terminate.
+      mRxBuffer[tRet] = 0;
+
+
+      // strcpy(mRxBuffer, "aaaaaaaa\r\n");
+      // Print.
+      Prn::print(Prn::Show1, "Master read  IN  >>>>>>>>>> %2d %d %s",
+         tRet, my_trimCRLF(mRxBuffer), mRxBuffer);
+
    }
 }
 
@@ -251,14 +259,18 @@ void MasterThread::sendString(const char* aString)
       Prn::print(Prn::Show1, "Master write FAIL 101 %d", errno);
       return;
    }
-
    if (tRet != tNumBytes)
    {
       Prn::print(Prn::Show1, "Master write FAIL 102");
       return;
    }
 
-   Prn::print(Prn::Show1, "Master write %d", tNumBytes);
+   // Print.
+   char tTxBuffer[100];
+   strcpy(tTxBuffer, aString);
+   Prn::print(Prn::Show1, "Master write OUT <<<<<<<<<< %2d %d %s",
+         tNumBytes, my_trimCRLF(tTxBuffer), tTxBuffer);
+   
    return;
 }
 

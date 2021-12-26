@@ -49,7 +49,6 @@ void CmdLineExec::executeSend(Ris::CmdLineCmd* aCmd)
    sprintf(tString,"%s\n", aCmd->argString(1));
    int tNumBytes = strlen(tString);
    gMasterThread->sendString(tString);
-   Prn::print(0, "send %d", tNumBytes);
 }
 
 //******************************************************************************
