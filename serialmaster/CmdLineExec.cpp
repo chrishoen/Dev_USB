@@ -44,11 +44,16 @@ void CmdLineExec::execute(Ris::CmdLineCmd* aCmd)
 
 void CmdLineExec::executeSend(Ris::CmdLineCmd* aCmd)
 {
-   aCmd->setArgDefault(1, "ABCDEFGH");
    char tString[100];
-   sprintf(tString,"%s\n", aCmd->argWhole());
-   my_string_toupper(tString);
-   int tNumBytes = strlen(tString);
+   if (aCmd->numArg() == 0)
+   {
+      strcpy(tString, "ABCDEFGH\n");
+   }
+   else
+   {
+      sprintf(tString, "%s\n", aCmd->argWhole());
+      my_string_toupper(tString);
+   }
    gMasterThread->sendString(tString);
 }
 
