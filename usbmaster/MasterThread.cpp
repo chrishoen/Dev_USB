@@ -30,17 +30,29 @@
 //******************************************************************************
 // Constructor.
 
-MasterThread::MasterThread()
+MasterThread::MasterThread(int aNum)
 {
-   // Set base class thread services.
-   BaseClass::setThreadName("Master");
+   // Instance variables.
+   mNum = aNum;
+   sprintf(mName, "Master%d", mNum);
+
+   // Set base class variables.
+   BaseClass::setThreadName(mName);
    BaseClass::setThreadPriorityHigh();
 
    // Set base class thread priority.
    BaseClass::setThreadPriorityHigh();
 
    // Initialize variables.
-   strcpy(mPortPath,Some::gUSBHostParms.mHostDevPath);
+   if (mNum == 1)
+   {
+      strcpy(mPortPath, Some::gUSBHostParms.mHostDevPath1);
+   }
+   else
+   {
+      strcpy(mPortPath, Some::gUSBHostParms.mHostDevPath2);
+   }
+
    mPortFd = -1;
    mEventFd = -1;
    mRxBuffer[0] = 0;
@@ -57,8 +69,6 @@ MasterThread::MasterThread()
 
 void MasterThread::threadInitFunction()
 {
-   printf("MasterThread::threadInitFunction\n");
-
    // Open the event.
    mEventFd = eventfd(0, EFD_SEMAPHORE);
 }
@@ -83,7 +93,7 @@ restart:
    {
       BaseClass::threadSleep(1000);
    }
-   Prn::print(Prn::Show1, "Master restart %d %s", mRestartCount, mPortPath);
+   Prn::print(Prn::Show1, "%s restart %d %s", mName, mRestartCount, mPortPath);
    mRestartCount++;
 
    //***************************************************************************
@@ -101,7 +111,7 @@ restart:
    // If the device is open then close it.
    if (mPortFd > 0)
    {
-      Prn::print(Prn::Show1, "Master close");
+      Prn::print(Prn::Show1, "%s close", mName);
       close(mPortFd);
       mPortFd = -1;
    }
@@ -110,7 +120,7 @@ restart:
    mPortFd = open(mPortPath, O_RDWR, S_IRUSR | S_IWUSR);
    if (mPortFd < 0)
    {
-      Prn::print(Prn::Show1, "Master open FAIL 101");
+      Prn::print(Prn::Show1, "%s open FAIL 101", mName);
       goto restart;
    }
 
@@ -123,11 +133,11 @@ restart:
 
    if (tcsetattr(mPortFd, TCSANOW, &tOptions) < 0)
    {
-      Prn::print(Prn::Show1, "Master open FAIL 102");
+      Prn::print(Prn::Show1, "%s open FAIL 102", mName);
       goto restart;
    }
 
-   Prn::print(Prn::Show1, "Master open");
+   Prn::print(Prn::Show1, "%s open", mName);
 
    //***************************************************************************
    //***************************************************************************
@@ -136,7 +146,7 @@ restart:
 
    while (!BaseClass::mTerminateFlag)
    {
-      Prn::print(Prn::Show4, "Master read start********************************************** %d", mRxCount++);
+      Prn::print(Prn::Show4, "%s read start********************************************** %d", mName, mRxCount++);
 
       //************************************************************************
       //************************************************************************
@@ -155,14 +165,14 @@ restart:
       tRet = poll(&tPollFd[0], 2, -1);
       if (tRet < 0)
       {
-         Prn::print(Prn::Show1, "Master poll FAIL");
+         Prn::print(Prn::Show1, "%s poll FAIL", mName);
          goto restart;
       }
 
       // Test for abort.
       if (tPollFd[1].revents & POLLIN)
       {
-         Prn::print(Prn::Show1, "Master read abort");
+         Prn::print(Prn::Show1, "%s read abort", mName);
          return;
       }
 
@@ -170,12 +180,12 @@ restart:
       tRet = read(mPortFd, mRxBuffer, 32);
       if (tRet < 0)
       {
-         Prn::print(Prn::Show1, "Master read FAIL");
+         Prn::print(Prn::Show1, "%s read FAIL", mName);
          goto restart;
       }
       if (tRet == 0)
       {
-         Prn::print(Prn::Show1, "Master read EMPTY");
+         Prn::print(Prn::Show1, "%s read EMPTY", mName);
          goto restart;
       }
       // Null terminate.
@@ -184,7 +194,7 @@ restart:
 
       // strcpy(mRxBuffer, "aaaaaaaa\r\n");
       // Print.
-      Prn::print(Prn::Show1, "Master read  IN  >>>>>>>>>> %2d %d %s",
+      Prn::print(Prn::Show1, "%s read  IN  >>>>>>>>>> %2d %d %s", mName,
          tRet, my_trimCRLF(mRxBuffer), mRxBuffer);
 
    }
@@ -225,7 +235,7 @@ void MasterThread::shutdownThread()
    // Close the device if it is open.
    if (mPortFd > 0)
    {
-      Prn::print(Prn::Show1, "Master close");
+      Prn::print(Prn::Show1, "%s close", mName);
       close(mPortFd);
       mPortFd = -1;
    }
@@ -256,19 +266,19 @@ void MasterThread::sendString(const char* aString)
    // Test the return code.
    if (tRet < 0)
    {
-      Prn::print(Prn::Show1, "Master write FAIL 101 %d", errno);
+      Prn::print(Prn::Show1, "%s write FAIL 101 %d", mName, errno);
       return;
    }
    if (tRet != tNumBytes)
    {
-      Prn::print(Prn::Show1, "Master write FAIL 102");
+      Prn::print(Prn::Show1, "%s write FAIL 102", mName);
       return;
    }
 
    // Print.
    char tTxBuffer[100];
    strcpy(tTxBuffer, aString);
-   Prn::print(Prn::Show1, "Master write OUT <<<<<<<<<< %2d %d %s",
+   Prn::print(Prn::Show1, "%s write OUT <<<<<<<<<< %2d %d %s", mName,
          tNumBytes, my_trimCRLF(tTxBuffer), tTxBuffer);
    
    return;

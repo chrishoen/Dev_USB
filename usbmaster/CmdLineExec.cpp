@@ -28,7 +28,8 @@ void CmdLineExec::reset()
 
 void CmdLineExec::execute(Ris::CmdLineCmd* aCmd)
 {
-   if (aCmd->isCmd("SEND"))     executeSend(aCmd);
+   if (aCmd->isCmd("SEND1"))    executeSend1(aCmd);
+   if (aCmd->isCmd("SEND2"))    executeSend2(aCmd);
    if (aCmd->isCmd("GO1"))      executeGo1(aCmd);
    if (aCmd->isCmd("GO2"))      executeGo2(aCmd);
    if (aCmd->isCmd("GO3"))      executeGo3(aCmd);
@@ -42,7 +43,7 @@ void CmdLineExec::execute(Ris::CmdLineCmd* aCmd)
 //******************************************************************************
 //******************************************************************************
 
-void CmdLineExec::executeSend(Ris::CmdLineCmd* aCmd)
+void CmdLineExec::executeSend1(Ris::CmdLineCmd* aCmd)
 {
    char tString[100];
    if (aCmd->numArg() == 0)
@@ -54,7 +55,26 @@ void CmdLineExec::executeSend(Ris::CmdLineCmd* aCmd)
       sprintf(tString, "%s\n", aCmd->argWhole());
       my_string_toupper(tString);
    }
-   gMasterThread->sendString(tString);
+   gMasterThread1->sendString(tString);
+}
+
+//******************************************************************************
+//******************************************************************************
+//******************************************************************************
+
+void CmdLineExec::executeSend2(Ris::CmdLineCmd* aCmd)
+{
+   char tString[100];
+   if (aCmd->numArg() == 0)
+   {
+      strcpy(tString, "ABCDEFGH\n");
+   }
+   else
+   {
+      sprintf(tString, "%s\n", aCmd->argWhole());
+      my_string_toupper(tString);
+   }
+   gMasterThread2->sendString(tString);
 }
 
 //******************************************************************************

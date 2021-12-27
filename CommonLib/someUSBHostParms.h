@@ -63,7 +63,17 @@ public:
    // Members.
 
    // Device path.
-   char mHostDevPath[cMaxStringSize];
+   char mHostDevPath1[cMaxStringSize];
+   char mHostDevPath2[cMaxStringSize];
+
+   // Enables.
+   bool  mEnable1;
+   bool  mEnable2;
+
+   //***************************************************************************
+   //***************************************************************************
+   //***************************************************************************
+   // Members.
 
    // Delays.
    int  mDelay1;

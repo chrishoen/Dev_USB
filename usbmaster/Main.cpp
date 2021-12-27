@@ -5,6 +5,7 @@
 #include "risCmdLineConsole.h"
 #include "CmdLineExec.h"
 
+#include "someUSBHostParms.h"
 #include "MasterThread.h"
 
 //******************************************************************************
@@ -25,8 +26,17 @@ int main(int argc,char** argv)
    //***************************************************************************
    // Launch program threads.
 
-   gMasterThread = new MasterThread;
-   gMasterThread->launchThread();
+   if (Some::gUSBHostParms.mEnable1)
+   {
+      gMasterThread1 = new MasterThread(1);
+      gMasterThread1->launchThread();
+   }
+   if (Some::gUSBHostParms.mEnable2)
+   {
+      gMasterThread2 = new MasterThread(2);
+      gMasterThread2->launchThread();
+   }
+
 
    //***************************************************************************
    //***************************************************************************
@@ -34,7 +44,8 @@ int main(int argc,char** argv)
    // Show program threads.
 
    Ris::Threads::showCurrentThreadInfo();
-   if (gMasterThread)    gMasterThread->showThreadInfo();
+   if (gMasterThread1)    gMasterThread1->showThreadInfo();
+   if (gMasterThread2)    gMasterThread2->showThreadInfo();
 
    //***************************************************************************
    //***************************************************************************
@@ -50,17 +61,23 @@ int main(int argc,char** argv)
    //***************************************************************************
    // Shutdown program threads.
 
-   if (gMasterThread)     gMasterThread->shutdownThread();
+   if (gMasterThread1)     gMasterThread1->shutdownThread();
+   if (gMasterThread2)     gMasterThread2->shutdownThread();
 
    //***************************************************************************
    //***************************************************************************
    //***************************************************************************
    // Delete program threads.
 
-   if (gMasterThread)
+   if (gMasterThread1)
    {
-      delete gMasterThread;
-      gMasterThread = 0;
+      delete gMasterThread1;
+      gMasterThread1 = 0;
+   }
+   if (gMasterThread2)
+   {
+      delete gMasterThread2;
+      gMasterThread2 = 0;
    }
 
    //***************************************************************************

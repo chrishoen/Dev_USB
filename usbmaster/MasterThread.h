@@ -35,6 +35,12 @@ public:
    //***************************************************************************
    // Members.
 
+   // Thread instance number.
+   int mNum;
+
+   // Thread instance name.
+   char mName[32];
+
    // File path for usb port.
    char mPortPath[64];
 
@@ -58,7 +64,7 @@ public:
    // Methods.
 
    // Constructor.
-   MasterThread();
+   MasterThread(int aNum);
 
    //***************************************************************************
    //***************************************************************************
@@ -100,9 +106,11 @@ public:
 // Global instance.
 
 #ifdef _MASTERTHREAD_CPP_
-           MasterThread* gMasterThread = 0;
+MasterThread* gMasterThread1 = 0;
+MasterThread* gMasterThread2 = 0;
 #else
-   extern  MasterThread* gMasterThread;
+extern  MasterThread* gMasterThread1;
+extern  MasterThread* gMasterThread2;
 #endif
 
 //******************************************************************************
