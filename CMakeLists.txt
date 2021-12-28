@@ -13,6 +13,7 @@ my_init_post_build_variables()
 
 add_subdirectory ("CommonLib")
 add_subdirectory ("usbmaster")
+add_subdirectory ("serialmaster")
 return()
 
 add_subdirectory ("motorcon")

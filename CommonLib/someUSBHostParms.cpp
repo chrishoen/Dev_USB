@@ -41,6 +41,7 @@ void USBHostParms::reset()
       BaseClass::setFilePath("/opt/prime/files/USBHost_Parms.txt");
    }
 
+   mHostDevPath[0] = 0;
    mHostDevPath1[0] = 0;
    mHostDevPath2[0] = 0;
    mEnable1 = false;
@@ -60,6 +61,7 @@ void USBHostParms::show()
    printf("USBHostParms************************************************ %s\n", mTargetSection);
 
    printf("\n");
+   printf("HostDevPath              %-10s\n", mHostDevPath);
    printf("HostDevPath1             %-10s\n", mHostDevPath1);
    printf("HostDevPath2             %-10s\n", mHostDevPath2);
    printf("Enable1                  %-10s\n", my_string_from_bool(mEnable1));
@@ -79,6 +81,7 @@ void USBHostParms::execute(Ris::CmdLineCmd* aCmd)
 {
    if (!isTargetSection(aCmd)) return;
 
+   if (aCmd->isCmd("HostDevPath"))           aCmd->copyArgString(1, mHostDevPath, cMaxStringSize);
    if (aCmd->isCmd("HostDevPath1"))          aCmd->copyArgString(1, mHostDevPath1, cMaxStringSize);
    if (aCmd->isCmd("HostDevPath2"))          aCmd->copyArgString(1, mHostDevPath2, cMaxStringSize);
    if (aCmd->isCmd("Enable1"))               mEnable1 = aCmd->argBool(1);
