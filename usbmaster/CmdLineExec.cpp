@@ -28,8 +28,15 @@ void CmdLineExec::reset()
 
 void CmdLineExec::execute(Ris::CmdLineCmd* aCmd)
 {
+   if (aCmd->isCmd("B1"))       gMasterThread1->mBFlag = aCmd->argBool(1);
+   if (aCmd->isCmd("B2"))       gMasterThread2->mBFlag = aCmd->argBool(1);
+
    if (aCmd->isCmd("SEND1"))    executeSend1(aCmd);
    if (aCmd->isCmd("SEND2"))    executeSend2(aCmd);
+
+   if (aCmd->isCmd("TEST1"))    executeTest1(aCmd);
+   if (aCmd->isCmd("TEST2"))    executeTest2(aCmd);
+
    if (aCmd->isCmd("GO1"))      executeGo1(aCmd);
    if (aCmd->isCmd("GO2"))      executeGo2(aCmd);
    if (aCmd->isCmd("GO3"))      executeGo3(aCmd);
@@ -75,6 +82,26 @@ void CmdLineExec::executeSend2(Ris::CmdLineCmd* aCmd)
       my_string_toupper(tString);
    }
    gMasterThread2->sendString(tString);
+}
+
+//******************************************************************************
+//******************************************************************************
+//******************************************************************************
+
+void CmdLineExec::executeTest1(Ris::CmdLineCmd* aCmd)
+{
+   aCmd->setArgDefault(1, 128);
+   gMasterThread1->sendTestBytes(aCmd->argInt(1));
+}
+
+//******************************************************************************
+//******************************************************************************
+//******************************************************************************
+
+void CmdLineExec::executeTest2(Ris::CmdLineCmd* aCmd)
+{
+   aCmd->setArgDefault(1, 128);
+   gMasterThread2->sendTestBytes(aCmd->argInt(1));
 }
 
 //******************************************************************************

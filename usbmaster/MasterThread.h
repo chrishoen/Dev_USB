@@ -27,8 +27,8 @@ public:
    //***************************************************************************
    // Constants.
 
-   // Device path for usb acm.
-   static const int cMaxStringSize = 256;
+   // Sizes.
+   static const int cMaxBufferSize = 4096;
 
    //***************************************************************************
    //***************************************************************************
@@ -50,13 +50,20 @@ public:
    // File descriptor for event semaphore used for close.
    int mEventFd;
 
-   // Request buffer.
-   char mRxBuffer[cMaxStringSize];
+   // Receive buffer.
+   char mRxBuffer[cMaxBufferSize];
 
-   // Status.
+   // Receive buffer length.
+   int mRxLength;
+
+   // If true then show in binary mode.
+   bool mBFlag;
+
+   // Metrics.
    int mErrorCount;
    int mRestartCount;
    int mRxCount;
+   int mTxCount;
 
    //***************************************************************************
    //***************************************************************************
@@ -93,11 +100,14 @@ public:
    //***************************************************************************
    // Methods.
 
-   // Send a null terminated string via the usb port. A newline terminator
-   // is appended to the string before transmission. This executes in the
-   // context of the calling thread.
+   // Send a null terminated string via the usb port.
    void sendString(const char* aString);
 
+   // Send bytes via the usb port.
+   void sendBytes(const void* aBytes, int aNumBytes);
+
+   // Send test bytes via the usb port.
+   void sendTestBytes(int aNumBytes);
 };
 
 //******************************************************************************
