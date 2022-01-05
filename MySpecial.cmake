@@ -12,7 +12,7 @@ function(my_special1)
    else()
       message(STATUS "my_special LINUX BEAGLE")
    endif()
-
+   message(STATUS "Using toolchain file: ${CMAKE_TOOLCHAIN_FILE}")
    message(STATUS "my_special***********************************************************END")
 endfunction()
 
